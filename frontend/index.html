@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather Dashboard</title>
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet"/>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #000;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+}
+
+.container {
+  text-align: center;
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 { font-size: clamp(1.4rem, 4vw, 2rem); padding: 12px 0 4px; color: #fff; }
+h3 { color: #fff; margin: 14px 0 8px; }
+
+#location {
+  font-size: clamp(1rem, 3vw, 1.3rem);
+  color: #fff;
+  margin-bottom: 10px;
+  font-weight: bold;
+  min-height: 1.5em;
+}
+
+#gps-warning {
+  background: #1a1a00;
+  border: 1px solid #facc15;
+  color: #facc15;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  margin: 8px auto;
+  max-width: 520px;
+  display: none;
+}
+
+#search-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 10px auto;
+}
+
+#city-input {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #60a5fa;
+  background: #111;
+  color: #fff;
+  font-size: 15px;
+  width: min(280px, 80vw);
+}
+#city-input::placeholder { color: #94a3b8; }
+
+.btn {
+  background: #1e3a5f;
+  color: #fff;
+  border: 2px solid #60a5fa;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.btn:hover { background: #2d4f7e; }
+
+.controls {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+#current-card {
+  background: #111;
+  color: #fff;
+  border: 1px solid #1e3a5f;
+  border-radius: 12px;
+  display: inline-block;
+  padding: 16px 28px;
+  margin: 10px auto;
+  min-width: min(240px, 90vw);
+  text-align: left;
+  line-height: 2;
+  font-size: clamp(14px, 2.5vw, 16px);
+}
+
+#forecast {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.card {
+  background: #111;
+  color: #fff;
+  padding: 12px 8px;
+  border-radius: 10px;
+  border: 1px solid #1e3a5f;
+  text-align: center;
+  font-size: clamp(12px, 2vw, 14px);
+}
+.card strong { color: #fff; display: block; margin-bottom: 4px; }
+.card .icon { font-size: clamp(1.6em, 4vw, 2.2em); line-height: 1.4; display: block; }
+.card .condition { font-size: 11px; color: #94a3b8; display: block; margin: -2px 0 6px; }
+
+#map {
+  height: clamp(280px, 45vw, 420px);
+  width: 100%;
+  border-radius: 10px;
+  margin: 12px 0 4px;
+}
+
+#radar-status {
+  color: #94a3b8;
+  font-size: 12px;
+  margin: 4px 0 8px;
+  min-height: 20px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🌦 Weather Dashboard</h1>
+  <h2 id="location">Locating...</h2>
+
+  <div id="gps-warning">
+    📍 Auto-location unavailable over HTTP — enter a city below or use localhost.
+  </div>
+
+  <div id="search-bar">
+    <input id="city-input" type="text" placeholder="Search city, e.g. Hernando, MS" />
+    <button class="btn" onclick="searchCity()">🔍 Search</button>
+    <button class="btn" onclick="tryGPS()">📍 Use My Location</button>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="unit-toggle" onclick="toggleUnit()">Switch to °F</button>
+  </div>
+
+  <div id="current-card">Loading conditions...</div>
+
+  <h3>7-Day Forecast</h3>
+  <div id="forecast"></div>
+
+  <div id="map"></div>
+  <div id="radar-status"></div>
+</div>
+
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+<script>
+// --------------------
+// STATE
+// --------------------
+let lat = 33.829;
+let lon = -90.0012;
+let map = null;
+let mapReady = false;
+let useFahrenheit = false;
+let weatherData = null;
+let forecastData = null;
+let radarFrames = [];
+let currentRadarFrame = 0;
+let radarAnimInterval = null;
+
+// --------------------
+// UNIT HELPERS
+// --------------------
+function toDisplay(c) {
+  if (c == null || isNaN(c)) return "--";
+  const val = useFahrenheit ? (c * 9 / 5 + 32) : c;
+  return Math.round(val * 10) / 10;
+}
+function unitLabel() { return useFahrenheit ? "°F" : "°C"; }
+
+function toggleUnit() {
+  useFahrenheit = !useFahrenheit;
+  document.getElementById("unit-toggle").innerText =
+    useFahrenheit ? "Switch to °C" : "Switch to °F";
+  if (weatherData) renderWeather();
+  if (forecastData) renderForecast();
+}
+
+// --------------------
+// WEATHER ICONS
+// --------------------
+const weatherIcons = {
+  1000:"☀️", 1100:"🌤️", 1101:"⛅", 1102:"🌥️", 1001:"☁️",
+  2000:"🌫️", 2100:"🌫️", 4000:"🌦️", 4001:"🌧️", 4200:"🌦️",
+  4201:"🌧️", 5000:"❄️", 5001:"🌨️", 5100:"🌨️", 5101:"❄️",
+  6000:"🌧️", 6001:"🌧️", 6200:"🌧️", 6201:"🌧️",
+  7000:"🧊", 7101:"🧊", 7102:"🧊", 8000:"⛈️"
+};
+
+const weatherLabels = {
+  1000:"Clear", 1100:"Mostly Clear", 1101:"Partly Cloudy", 1102:"Mostly Cloudy",
+  1001:"Cloudy", 2000:"Fog", 2100:"Light Fog", 4000:"Drizzle", 4001:"Rain",
+  4200:"Light Rain", 4201:"Heavy Rain", 5000:"Snow", 5001:"Flurries",
+  5100:"Light Snow", 5101:"Heavy Snow", 6000:"Freezing Drizzle",
+  6001:"Freezing Rain", 6200:"Light Freezing Rain", 6201:"Heavy Freezing Rain",
+  7000:"Ice Pellets", 7101:"Heavy Ice Pellets", 7102:"Light Ice Pellets",
+  8000:"Thunderstorm"
+};
+
+function getIcon(code) { return weatherIcons[code] || "🌡️"; }
+function getLabel(code) { return weatherLabels[code] || ""; }
+
+// --------------------
+// LOCATION: GPS
+// --------------------
+function tryGPS() {
+  if (!navigator.geolocation) {
+    document.getElementById("gps-warning").style.display = "block";
+    return;
+  }
+  document.getElementById("location").innerText = "Getting GPS location...";
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      lat = pos.coords.latitude;
+      lon = pos.coords.longitude;
+      document.getElementById("gps-warning").style.display = "none";
+      await refreshAll();
+    },
+    () => {
+      document.getElementById("gps-warning").style.display = "block";
+      document.getElementById("location").innerText = "GPS unavailable — search a city above";
+    },
+    { timeout: 8000 }
+  );
+}
+
+// --------------------
+// LOCATION: CITY SEARCH
+// --------------------
+async function searchCity() {
+  const query = document.getElementById("city-input").value.trim();
+  if (!query) return;
+  document.getElementById("location").innerText = "Searching...";
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`,
+      { headers: { "User-Agent": "weather-dashboard" } }
+    );
+    const data = await res.json();
+    if (!data || !data.length) {
+      alert("City not found. Try a different search.");
+      document.getElementById("location").innerText = "Location not found";
+      return;
+    }
+    lat = parseFloat(data[0].lat);
+    lon = parseFloat(data[0].lon);
+    await refreshAll();
+  } catch (e) {
+    alert("Search failed: " + e.message);
+  }
+}
+
+// --------------------
+// WEATHER: FETCH + RENDER
+// --------------------
+async function loadWeather() {
+  try {
+    const res = await fetch(`/weather?lat=${lat}&lon=${lon}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    weatherData = data;
+    renderWeather();
+  } catch (e) {
+    console.error("Weather fetch failed:", e.message);
+    document.getElementById("location").innerText = "Weather unavailable";
+    document.getElementById("current-card").innerText = "Could not load weather data.";
+  }
+}
+
+function renderWeather() {
+  const d = weatherData;
+  const u = unitLabel();
+  document.getElementById("location").innerText = d.location || `${lat}, ${lon}`;
+  document.getElementById("current-card").innerHTML = `
+    <strong style="font-size:1.05em">🌡️ Current Conditions</strong><br>
+    Temp: ${toDisplay(d.temperature)}${u}<br>
+    Feels Like: ${toDisplay(d.feelsLike)}${u}<br>
+    Dew Point: ${toDisplay(d.dewPoint)}${u}<br>
+    Humidity: ${d.humidity != null ? Math.round(d.humidity) + "%" : "--"}<br>
+    Wind: ${d.windSpeed != null ? (Math.round(d.windSpeed * 10) / 10) + " m/s" : "--"}
+  `;
+  if (map) map.flyTo({ center: [lon, lat], zoom: 6 });
+}
+
+// --------------------
+// FORECAST: FETCH + RENDER
+// --------------------
+async function loadForecast() {
+  try {
+    const res = await fetch(`/forecast?lat=${lat}&lon=${lon}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    forecastData = data;
+    renderForecast();
+  } catch (e) {
+    console.error("Forecast fetch failed:", e.message);
+    document.getElementById("forecast").innerText = "Could not load forecast.";
+  }
+}
+
+function renderForecast() {
+  const container = document.getElementById("forecast");
+  container.innerHTML = "";
+  const u = unitLabel();
+  forecastData.slice(0, 7).forEach(day => {
+    const div = document.createElement("div");
+    div.className = "card";
+    const icon = getIcon(day.weatherCode);
+    const label = getLabel(day.weatherCode);
+    div.innerHTML = `
+      <strong>${new Date(day.time).toLocaleDateString("en-US", { weekday:"short", month:"short", day:"numeric" })}</strong>
+      <span class="icon">${icon}</span>
+      <span class="condition">${label}</span>
+      High: ${toDisplay(day.max)}${u}<br>
+      Low: ${toDisplay(day.min)}${u}
+    `;
+    container.appendChild(div);
+  });
+}
+
+// --------------------
+// RADAR
+// --------------------
+let radarData = null;
+
+async function fetchRadarFrames(retries = 3) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(`https://api.rainviewer.com/public/weather-maps.json?_=${Date.now()}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const past    = (data?.radar?.past    || []).map(f => ({ ...f, type: "past" }));
+      const nowcast = (data?.radar?.nowcast || []).map(f => ({ ...f, type: "future" }));
+      console.log(`Radar attempt ${attempt}: ${past.length} past, ${nowcast.length} nowcast`);
+      if (past.length > 0) {
+        radarData = { past, nowcast, frames: [...past, ...nowcast] };
+        return radarData;
+      }
+    } catch (e) {
+      console.warn(`Radar fetch attempt ${attempt} failed:`, e.message);
+    }
+    if (attempt < retries) await new Promise(r => setTimeout(r, 2000));
+  }
+  return null;
+}
+
+function addRadarLayersToMap(frames) {
+  // Only remove layers that actually exist — don't blindly tear everything down
+  frames.forEach((_, i) => {
+    try { if (map.getLayer(`radar-layer-${i}`)) map.removeLayer(`radar-layer-${i}`); } catch(e) {}
+    try { if (map.getSource(`radar-${i}`))      map.removeSource(`radar-${i}`);      } catch(e) {}
+  });
+
+  frames.forEach((frame, i) => {
+    map.addSource(`radar-${i}`, {
+      type: "raster",
+      tiles: [`https://tilecache.rainviewer.com${frame.path}/256/{z}/{x}/{y}/2/1_1.png`],
+      tileSize: 256,
+      minzoom: 0,
+      maxzoom: 12  // never request tiles beyond zoom 12
+    });
+    map.addLayer({
+      id: `radar-layer-${i}`,
+      type: "raster",
+      source: `radar-${i}`,
+      maxzoom: 24, // FIX: allow the LAYER to display at any zoom (source handles tile cap)
+      paint: {
+        "raster-opacity": 0,
+        "raster-fade-duration": 0,        // no fade = no blank frames during animation
+        "raster-resampling": "linear"     // smoothly upscale tiles when zoomed past 12
+      }
+    });
+  });
+}
+
+function ensureRadarLayers() {
+  // FIX: quiet check — only rebuild if layer 0 is actually gone
+  // Does NOT fire on every zoom/pan like styledata did
+  if (radarFrames.length && !map.getLayer("radar-layer-0")) {
+    console.log("Radar layers missing — quietly restoring");
+    addRadarLayersToMap(radarFrames);
+    showRadarFrame(currentRadarFrame);
+  }
+}
+
+async function loadRadar() {
+  if (!mapReady) return;
+
+  if (radarAnimInterval) { clearInterval(radarAnimInterval); radarAnimInterval = null; }
+
+  // FIX: remove any previous styledata listener (old approach that caused the problem)
+  map.off("styledata", ensureRadarLayers);
+
+  document.getElementById("radar-status").innerText = "📡 Loading radar...";
+
+  const result = await fetchRadarFrames(3);
+  if (!result || !result.frames.length) {
+    document.getElementById("radar-status").innerText = "⚠️ Radar unavailable";
+    return;
+  }
+
+  radarFrames = result.frames;
+  addRadarLayersToMap(radarFrames);
+
+  currentRadarFrame = 0;
+  showRadarFrame(currentRadarFrame);
+
+  radarAnimInterval = setInterval(() => {
+    // FIX: check and quietly restore missing layers inside the interval tick
+    // instead of reacting to every styledata event
+    ensureRadarLayers();
+
+    map.setPaintProperty(`radar-layer-${currentRadarFrame}`, "raster-opacity", 0);
+    currentRadarFrame = (currentRadarFrame + 1) % radarFrames.length;
+    showRadarFrame(currentRadarFrame);
+  }, 700);
+}
+
+function showRadarFrame(i) {
+  if (!map.getLayer(`radar-layer-${i}`)) return;
+  map.setPaintProperty(`radar-layer-${i}`, "raster-opacity", 0.65);
+
+  const frame = radarFrames[i];
+  const t = new Date(frame.time * 1000);
+  const timeStr = t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const dateStr = t.toLocaleDateString([], { month: "short", day: "numeric" });
+  const isFuture = frame.type === "future";
+  const pastCount = radarFrames.filter(f => f.type === "past").length;
+  const futureCount = radarFrames.length - pastCount;
+
+  const bar = radarFrames.map((f, j) => {
+    if (j === i) return "◆";
+    return f.type === "past" ? "▓" : "░";
+  }).join("");
+
+  const label = isFuture ? "🔮 Forecast" : "📡 Radar";
+  const color = isFuture ? "#818cf8" : "#94a3b8";
+  const futureNote = futureCount === 0
+    ? `<span style="color:#475569;font-size:11px"> — nowcast unavailable, retries next refresh</span>`
+    : `<span style="color:#475569;font-size:11px"> ${pastCount} past / ${futureCount} future</span>`;
+
+  document.getElementById("radar-status").innerHTML =
+    `<span style="color:${color}">${label}: ${dateStr} ${timeStr}</span>` +
+    `&nbsp;&nbsp;<span style="font-family:monospace;letter-spacing:2px;color:#475569">${bar}</span>` +
+    futureNote;
+}
+
+// --------------------
+// MAP INIT
+// --------------------
+async function initMap() {
+  mapboxgl.accessToken = "pk.eyJ1IjoieHhyZWRkcmFnb254eCIsImEiOiJjbW81M2ZrcWYxb3Z3MnBwdXB0eTEzdjE5In0.flZn99qhSkN1RJjLfjK5DA";
+
+  map = new mapboxgl.Map({
+    container: "map",
+    style: "mapbox://styles/mapbox/dark-v11",
+    center: [lon, lat],
+    zoom: 5
+  });
+
+  map.addControl(new mapboxgl.NavigationControl(), "top-right");
+  new mapboxgl.Marker().setLngLat([lon, lat]).addTo(map);
+
+  map.on("load", async () => {
+    mapReady = true;
+    await loadRadar();
+  });
+}
+
+// --------------------
+// REFRESH ALL
+// --------------------
+async function refreshAll() {
+  await Promise.all([loadWeather(), loadForecast()]);
+  if (mapReady) await loadRadar();
+}
+
+// --------------------
+// INIT
+// --------------------
+async function init() {
+  // Try GPS silently; on failure show warning and load default coords
+  const gpsOk = await new Promise((resolve) => {
+    if (!navigator.geolocation) { resolve(false); return; }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        lat = pos.coords.latitude;
+        lon = pos.coords.longitude;
+        resolve(true);
+      },
+      () => resolve(false),
+      { timeout: 5000 }
+    );
+  });
+
+  if (!gpsOk) {
+    document.getElementById("gps-warning").style.display = "block";
+  }
+
+  // Load data and map in parallel where possible
+  await Promise.all([loadWeather(), loadForecast()]);
+  await initMap();
+
+  // Auto-refresh every 5 minutes
+  setInterval(refreshAll, 300000);
+}
+
+// Enter key in search box
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("city-input").addEventListener("keydown", e => {
+    if (e.key === "Enter") searchCity();
+  });
+});
+
+init();
+</script>
+</body>
+</html>
