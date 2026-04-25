@@ -1,6 +1,17 @@
 # weather-dashboard
 Dashboard showing current location weather, 7 day forecast, and a weather map. 
-<img width="1859" height="923" alt="image" src="https://github.com/user-attachments/assets/d31c2f7a-c827-4ced-b8c2-648bc09ade5a" />
+<img width="1876" height="924" alt="image" src="https://github.com/user-attachments/assets/669eec4a-f649-4319-b838-e1124b75e6ac" />
+
+*Latest updates (4/24/26)*
+Added the ability to save locations.
+Change from light to dark mode and vice versa.
+Added sunrise and sunset times.
+Added a share link button. 
+Added a satellite radar map overlay mode. 
+Added a 'feels like', UV index, wind direction and speed, and dew point. 
+Added a button to change between m/s and mph. 
+Visual improvements. 
+
 
 This was put together after the pi weather station issues that I ran into after hosting it for years. 
 
