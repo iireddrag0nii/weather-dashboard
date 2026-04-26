@@ -57,29 +57,21 @@ body {
 /* ANIMATED BACKGROUND   */
 /* ===================== */
 #bg-canvas {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.7;
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none; opacity: 0.7;
 }
 #bg-gradient {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  transition: background 3s ease;
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none; transition: background 3s ease;
 }
 
 /* ===================== */
 /* LAYOUT                */
 /* ===================== */
 .app {
-  position: relative;
-  z-index: 1;
-  max-width: 1300px;
-  margin: 0 auto;
-  padding: 20px 16px 60px;
+  position: relative; z-index: 1;
+  max-width: 1300px; margin: 0 auto;
+  padding: 12px 12px 60px;
 }
 
 /* ===================== */
@@ -96,73 +88,78 @@ body {
 .glass:hover { background: var(--glass-hover); }
 
 /* ===================== */
-/* HEADER                */
+/* HEADER — fix truncation */
 /* ===================== */
 header {
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* FIX: align top so wrapped title doesn't mis-align buttons */
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-  padding: 20px 0 8px;
+  gap: 8px;
+  padding: 10px 0 6px;
+  flex-wrap: nowrap;
 }
+.header-left { flex: 1; min-width: 0; }
 .header-left h1 {
-  font-size: clamp(1.5rem, 4vw, 2.4rem);
+  font-size: clamp(1.2rem, 5vw, 2.4rem);
   font-weight: 800;
   letter-spacing: -0.02em;
-  line-height: 1;
+  line-height: 1.1;
+  /* FIX: allow wrapping instead of truncating with ellipsis */
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
 }
 .header-left h1 span { color: var(--accent); }
 #location-display {
-  font-size: clamp(0.85rem, 2vw, 1rem);
+  font-size: clamp(0.7rem, 2.5vw, 1rem);
   color: var(--text-muted);
   font-family: var(--font-data);
   font-weight: 300;
-  margin-top: 4px;
-  min-height: 1.3em;
+  margin-top: 2px;
+  min-height: 1.2em;
+  /* FIX: allow location to wrap too */
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
 }
 .header-right {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
+  flex-shrink: 0;
+  padding-top: 2px; /* nudge buttons to align with first line of title */
 }
 .icon-btn {
   background: var(--glass);
   border: 1px solid var(--glass-border);
   color: var(--text);
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 16px;
+  width: 36px; height: 36px;  /* FIX: slightly smaller on mobile */
+  font-size: 15px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   transition: background 0.2s, transform 0.15s;
   backdrop-filter: blur(12px);
+  flex-shrink: 0;
 }
 .icon-btn:hover { background: var(--glass-hover); transform: scale(1.08); }
 
 /* ===================== */
 /* ALERTS                */
 /* ===================== */
-#alerts-container { margin: 12px 0; display: flex; flex-direction: column; gap: 8px; }
+#alerts-container { margin: 8px 0; display: flex; flex-direction: column; gap: 8px; }
 .alert-banner {
   border-radius: var(--radius-sm);
   padding: 10px 14px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-  font-size: 13px;
-  animation: slideIn 0.3s ease;
-  border-left: 4px solid;
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 10px;
+  font-size: 13px; animation: slideIn 0.3s ease; border-left: 4px solid;
 }
 .alert-banner.Extreme  { background: rgba(220,38,38,0.2);  border-color: #dc2626; }
 .alert-banner.Severe   { background: rgba(234,88,12,0.2);  border-color: #ea580c; }
 .alert-banner.Moderate { background: rgba(202,138,4,0.2);  border-color: #ca8a04; }
 .alert-banner.Minor    { background: rgba(79,142,247,0.2); border-color: var(--accent); }
-.alert-event  { font-weight: 700; font-family: var(--font-head); display: block; margin-bottom: 2px; }
+.alert-event  { font-weight: 700; display: block; margin-bottom: 2px; }
 .alert-close  { cursor: pointer; opacity: 0.6; font-size: 18px; line-height: 1; flex-shrink: 0; background: none; border: none; color: inherit; }
 .alert-close:hover { opacity: 1; }
 
@@ -170,125 +167,98 @@ header {
 /* CONTROLS ROW          */
 /* ===================== */
 .controls-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 14px 0;
-  align-items: center;
+  display: flex; flex-wrap: wrap;
+  gap: 8px; margin: 10px 0; align-items: center;
 }
 .search-group {
-  display: flex;
-  gap: 6px;
-  flex: 1;
-  min-width: 260px;
+  display: flex; gap: 6px;
+  flex: 1; min-width: 0;
 }
 #city-input {
-  flex: 1;
-  padding: 9px 14px;
+  flex: 1; min-width: 0;
+  padding: 9px 12px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--glass-border);
-  background: var(--glass);
-  color: var(--text);
-  font-family: var(--font-head);
-  font-size: 14px;
-  backdrop-filter: blur(12px);
-  outline: none;
+  background: var(--glass); color: var(--text);
+  font-family: var(--font-head); font-size: 14px;
+  backdrop-filter: blur(12px); outline: none;
   transition: border-color 0.2s;
 }
 #city-input:focus { border-color: var(--accent); }
 #city-input::placeholder { color: var(--text-muted); }
 .btn {
-  padding: 9px 16px;
+  padding: 9px 14px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--glass-border);
-  background: var(--glass);
-  color: var(--text);
-  font-family: var(--font-head);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
+  background: var(--glass); color: var(--text);
+  font-family: var(--font-head); font-size: 13px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
   backdrop-filter: blur(12px);
   transition: background 0.2s, transform 0.15s;
+  flex-shrink: 0;
 }
 .btn:hover { background: var(--glass-hover); transform: translateY(-1px); }
 .btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-.unit-group { display: flex; gap: 6px; }
+.unit-group { display: flex; gap: 6px; flex-shrink: 0; }
 
 /* ===================== */
 /* FAVORITES STRIP       */
 /* ===================== */
 #favorites-strip {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin: 4px 0 12px;
+  display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 10px;
 }
 .fav-pill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 30px;
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px; border-radius: 30px;
   border: 1px solid var(--glass-border);
-  background: var(--glass);
-  color: var(--text);
-  font-family: var(--font-head);
-  font-size: 12px;
-  cursor: pointer;
-  backdrop-filter: blur(12px);
+  background: var(--glass); color: var(--text);
+  font-family: var(--font-head); font-size: 12px;
+  cursor: pointer; backdrop-filter: blur(12px);
   transition: background 0.2s;
 }
 .fav-pill:hover { background: var(--glass-hover); }
-.fav-remove {
-  opacity: 0.5;
-  font-size: 15px;
-  line-height: 1;
-  cursor: pointer;
-}
+.fav-remove { opacity: 0.5; font-size: 15px; cursor: pointer; }
 .fav-remove:hover { opacity: 1; }
 
 /* ===================== */
 /* CURRENT CONDITIONS    */
 /* ===================== */
 .current-card {
-  padding: 24px 28px;
-  margin-bottom: 16px;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 28px;
-  align-items: start;
+  padding: 20px;
+  margin-bottom: 14px;
 }
-@media (max-width: 640px) {
-  .current-card { grid-template-columns: 1fr; gap: 20px; }
-}
-.current-main {}
-.current-temp-row {
+.current-top {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  margin-bottom: 4px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.current-temp-icon {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
 }
 .current-temp {
-  font-size: clamp(3rem, 8vw, 5rem);
+  font-size: clamp(2.8rem, 10vw, 5rem);
   font-weight: 800;
   line-height: 1;
   font-family: var(--font-data);
   letter-spacing: -0.03em;
 }
 .current-wx-icon {
-  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-size: clamp(2rem, 7vw, 4rem);
   line-height: 1;
   margin-top: 4px;
 }
+.current-meta {}
 .current-condition {
-  font-size: 1rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 0.75rem;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 .sun-row {
   display: flex;
@@ -296,192 +266,171 @@ header {
   font-family: var(--font-data);
   font-size: 12px;
   color: var(--text-muted);
-  margin-top: 8px;
+  flex-wrap: wrap;
 }
-.sun-item span { color: var(--text); font-weight: 500; }
+.sun-row span { color: var(--text); font-weight: 500; }
 
-/* Stats grid */
+/* Stats grid — FIX: 2 cols on mobile, more on desktop */
 .current-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+@media (min-width: 480px) {
+  .current-stats { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 900px) {
+  .current-stats { grid-template-columns: repeat(4, 1fr); }
 }
 .stat-cell {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 10px 12px;
 }
 .stat-label {
-  display: block;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-dim);
-  font-weight: 600;
-  margin-bottom: 4px;
+  display: block; font-size: 9px;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-dim); font-weight: 600; margin-bottom: 4px;
 }
 .stat-value {
-  display: block;
-  font-family: var(--font-data);
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text);
+  display: block; font-family: var(--font-data);
+  font-size: 14px; font-weight: 500; color: var(--text);
+}
+
+/* ===================== */
+/* SECTION TITLE         */
+/* ===================== */
+.section-title {
+  font-size: 0.65rem; text-transform: uppercase;
+  letter-spacing: 0.15em; color: var(--text-dim);
+  font-weight: 700; margin-bottom: 8px;
 }
 
 /* ===================== */
 /* HOURLY FORECAST       */
 /* ===================== */
-.section-title {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--text-dim);
-  font-weight: 700;
-  margin-bottom: 10px;
-}
 .hourly-scroll {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 8px;
+  display: flex; gap: 6px;
+  overflow-x: auto; padding-bottom: 8px;
   scroll-snap-type: x mandatory;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  margin-bottom: 16px;
+  -ms-overflow-style: none; scrollbar-width: none;
+  margin-bottom: 14px;
 }
 .hourly-scroll::-webkit-scrollbar { display: none; }
 .hour-card {
   flex-shrink: 0;
-  width: 72px;
+  width: clamp(62px, 16vw, 76px); /* FIX: fluid width so mobile shows ~4-5 cards */
   scroll-snap-align: start;
-  padding: 12px 8px;
-  border-radius: 14px;
-  text-align: center;
+  padding: 10px 6px;
+  border-radius: 14px; text-align: center;
   border: 1px solid var(--glass-border);
-  background: var(--glass);
-  backdrop-filter: blur(16px);
+  background: var(--glass); backdrop-filter: blur(16px);
   transition: background 0.2s;
 }
 .hour-card:hover { background: var(--glass-hover); }
-.hour-card.now {
-  border-color: var(--accent);
-  background: rgba(79,142,247,0.12);
-}
+.hour-card.now { border-color: var(--accent); background: rgba(79,142,247,0.12); }
 .hour-time {
-  font-size: 10px;
-  color: var(--text-muted);
-  font-family: var(--font-data);
-  margin-bottom: 6px;
-  font-weight: 500;
+  font-size: 9px; color: var(--text-muted);
+  font-family: var(--font-data); margin-bottom: 5px; font-weight: 500;
 }
-.hour-icon { font-size: 20px; line-height: 1; margin-bottom: 6px; }
-.hour-temp {
-  font-family: var(--font-data);
-  font-size: 13px;
-  font-weight: 500;
-  margin-bottom: 4px;
-}
-.hour-precip {
-  font-size: 10px;
-  color: #60a5fa;
-  font-family: var(--font-data);
-}
+.hour-icon  { font-size: 18px; line-height: 1; margin-bottom: 5px; }
+.hour-temp  { font-family: var(--font-data); font-size: 12px; font-weight: 500; margin-bottom: 3px; }
+.hour-precip{ font-size: 9px; color: #60a5fa; font-family: var(--font-data); }
 
 /* ===================== */
-/* 7-DAY FORECAST        */
+/* 7-DAY FORECAST — fix orphaned last card */
 /* ===================== */
 #forecast-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 8px;
+  margin-bottom: 16px;
+  /* FIX: use auto-fill so 7 cards never leave an orphan at half width.
+     minmax(140px,1fr) fills the row evenly regardless of count */
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (min-width: 480px) {
+  /* 3 cols: 6 cards fill 2 rows, 7th starts row 3 — still orphaned.
+     Use 480-699 as the one range where we force all 7 into consideration */
+  #forecast-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 560px) and (max-width: 699px) {
+  /* FIX: at this width we can fit 4 cols — 7 cards = 4+3, much better */
+  #forecast-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (min-width: 700px) {
+  #forecast-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (min-width: 900px) {
+  /* FIX: force all 7 into one row on desktop */
+  #forecast-grid { grid-template-columns: repeat(7, 1fr); }
 }
 .day-card {
-  padding: 14px 10px;
-  border-radius: var(--radius);
+  padding: 12px 8px; border-radius: var(--radius);
   border: 1px solid var(--glass-border);
-  background: var(--glass);
-  backdrop-filter: blur(16px);
-  text-align: center;
-  transition: background 0.2s, transform 0.15s;
+  background: var(--glass); backdrop-filter: blur(16px);
+  text-align: center; transition: background 0.2s, transform 0.15s;
 }
 .day-card:hover { background: var(--glass-hover); transform: translateY(-2px); }
 .day-name {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  margin-bottom: 8px;
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text-muted); margin-bottom: 6px;
 }
-.day-icon { font-size: 2rem; line-height: 1; margin-bottom: 4px; }
-.day-condition {
-  font-size: 10px;
-  color: var(--text-muted);
-  margin-bottom: 8px;
-  min-height: 14px;
-}
-.day-temps {
-  font-family: var(--font-data);
-  font-size: 13px;
-  margin-bottom: 6px;
-}
-.day-high { color: var(--text); font-weight: 500; }
-.day-low  { color: var(--text-muted); }
-.day-precip { font-size: 11px; color: #60a5fa; font-family: var(--font-data); margin-bottom: 6px; }
-.day-sun {
-  font-size: 9px;
-  color: var(--text-dim);
-  font-family: var(--font-data);
-  line-height: 1.7;
-}
+.day-icon    { font-size: 1.8rem; line-height: 1; margin-bottom: 3px; }
+.day-condition { font-size: 9px; color: var(--text-muted); margin-bottom: 6px; min-height: 12px; }
+.day-temps   { font-family: var(--font-data); font-size: 12px; margin-bottom: 4px; }
+.day-high    { color: var(--text); font-weight: 500; }
+.day-low     { color: var(--text-muted); }
+.day-precip  { font-size: 10px; color: #60a5fa; font-family: var(--font-data); margin-bottom: 4px; }
+.day-sun     { font-size: 9px; color: rgba(255,255,255,0.7); font-family: var(--font-data); line-height: 1.7; }
 
 /* ===================== */
 /* MAP SECTION           */
 /* ===================== */
 .map-section { margin-bottom: 20px; }
 .map-controls {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-  align-items: center;
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 8px; align-items: center;
 }
 .map-controls .section-title { margin-bottom: 0; flex-shrink: 0; margin-right: 4px; }
 #map {
-  height: clamp(300px, 45vw, 480px);
-  width: 100%;
-  border-radius: var(--radius);
+  height: clamp(260px, 50vw, 480px);
+  width: 100%; border-radius: var(--radius);
   border: 1px solid var(--glass-border);
 }
 #radar-status {
-  margin-top: 8px;
+  margin-top: 6px;
   font-family: var(--font-data);
   font-size: 11px;
   color: var(--text-muted);
   min-height: 18px;
+  /* FIX: hide the "future frames load when available" line on small screens
+     by truncating — the progress bar already communicates frame count */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (min-width: 600px) {
+  /* Allow full text on wider screens where it fits on one line */
+  #radar-status {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+  }
 }
 
 /* ===================== */
 /* TOAST                 */
 /* ===================== */
 .toast {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
+  position: fixed; bottom: 24px; left: 50%;
   transform: translateX(-50%) translateY(20px);
-  background: var(--accent);
-  color: #fff;
-  padding: 10px 20px;
-  border-radius: 30px;
-  font-size: 13px;
-  font-weight: 600;
-  opacity: 0;
-  transition: opacity 0.3s, transform 0.3s;
-  z-index: 1000;
-  white-space: nowrap;
-  pointer-events: none;
+  background: var(--accent); color: #fff;
+  padding: 10px 20px; border-radius: 30px;
+  font-size: 13px; font-weight: 600;
+  opacity: 0; transition: opacity 0.3s, transform 0.3s;
+  z-index: 1000; white-space: nowrap; pointer-events: none;
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -490,29 +439,17 @@ header {
 /* ===================== */
 #gps-warning {
   background: rgba(202,138,4,0.15);
-  border: 1px solid #ca8a04;
-  color: #fbbf24;
+  border: 1px solid #ca8a04; color: #fbbf24;
   border-radius: var(--radius-sm);
-  padding: 8px 14px;
-  font-size: 12px;
-  margin-bottom: 10px;
-  display: none;
+  padding: 8px 14px; font-size: 12px;
+  margin-bottom: 10px; display: none;
 }
 
 /* ===================== */
 /* ANIMATIONS            */
 /* ===================== */
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.fade-up { animation: fadeUp 0.4s ease both; }
-
-/* Stagger children */
+@keyframes slideIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeUp  { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
 .current-card  { animation: fadeUp 0.4s 0.1s ease both; }
 .hourly-scroll { animation: fadeUp 0.4s 0.2s ease both; }
 #forecast-grid { animation: fadeUp 0.4s 0.3s ease both; }
@@ -570,24 +507,26 @@ header {
 
   <!-- CURRENT CONDITIONS -->
   <div class="current-card glass">
-    <div class="current-main">
-      <div class="current-temp-row">
-        <div class="current-temp" id="cur-temp">--</div>
-        <div class="current-wx-icon" id="cur-icon">🌡️</div>
-      </div>
+  <div class="current-top">
+    <div class="current-temp-icon">
+      <div class="current-temp" id="cur-temp">--</div>
+      <div class="current-wx-icon" id="cur-icon">🌡️</div>
+    </div>
+    <div class="current-meta">
       <div class="current-condition" id="cur-condition">Loading...</div>
       <div class="sun-row" id="cur-sun"></div>
     </div>
-    <div class="current-stats" id="cur-stats">
-      <div class="stat-cell"><span class="stat-label">Feels Like</span><span class="stat-value" id="s-feels">--</span></div>
-      <div class="stat-cell"><span class="stat-label">Humidity</span><span class="stat-value" id="s-humid">--</span></div>
-      <div class="stat-cell"><span class="stat-label">Wind</span><span class="stat-value" id="s-wind">--</span></div>
-      <div class="stat-cell"><span class="stat-label">UV Index</span><span class="stat-value" id="s-uv">--</span></div>
-      <div class="stat-cell"><span class="stat-label">Pressure</span><span class="stat-value" id="s-pressure">--</span></div>
-      <div class="stat-cell"><span class="stat-label">Visibility</span><span class="stat-value" id="s-vis">--</span></div>
-      <div class="stat-cell"><span class="stat-label">Dew Point</span><span class="stat-value" id="s-dew">--</span></div>
-    </div>
   </div>
+  <div class="current-stats" id="cur-stats">
+    <div class="stat-cell"><span class="stat-label">Feels Like</span><span class="stat-value" id="s-feels">--</span></div>
+    <div class="stat-cell"><span class="stat-label">Humidity</span><span class="stat-value" id="s-humid">--</span></div>
+    <div class="stat-cell"><span class="stat-label">Wind</span><span class="stat-value" id="s-wind">--</span></div>
+    <div class="stat-cell"><span class="stat-label">UV Index</span><span class="stat-value" id="s-uv">--</span></div>
+    <div class="stat-cell"><span class="stat-label">Pressure</span><span class="stat-value" id="s-pressure">--</span></div>
+    <div class="stat-cell"><span class="stat-label">Visibility</span><span class="stat-value" id="s-vis">--</span></div>
+    <div class="stat-cell"><span class="stat-label">Dew Point</span><span class="stat-value" id="s-dew">--</span></div>
+  </div>
+</div>
 
   <!-- HOURLY -->
   <div class="section-title">24-Hour Forecast</div>
@@ -682,9 +621,16 @@ function uvInfo(uv) {
   if (uv <= 10) return { text:`${Math.round(uv*10)/10} Very High`, color:'#f87171' };
   return { text:`${Math.round(uv*10)/10} Extreme`, color:'#c084fc' };
 }
-function fmtTime(iso) {
+// Replace the existing fmtTime function with this timezone-aware version
+function fmtTime(iso, tz) {
   if (!iso) return "--";
-  return new Date(iso).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+  const d = new Date(iso);
+  return d.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: tz || undefined  // use location timezone if available
+  });
 }
 
 function toggleTemp() {
@@ -921,58 +867,81 @@ async function loadWeather() {
 }
 function renderWeather() {
   const d = weatherData;
+  if (!d) return;
+
   document.getElementById('location-display').textContent = d.location || `${lat}, ${lon}`;
-  document.getElementById('cur-temp').textContent      = tempC(d.temperature);
-  document.getElementById('cur-icon').textContent      = icon(d.weatherCode);
+
+  // FIX: explicit null check so -- only shows for temp specifically if null
+  const tempDisplay = d.temperature != null ? tempC(d.temperature) : "--";
+  document.getElementById('cur-temp').textContent  = tempDisplay;
+  document.getElementById('cur-icon').textContent  = icon(d.weatherCode);
   document.getElementById('cur-condition').textContent = label(d.weatherCode).toUpperCase();
 
   const uv = uvInfo(d.uvIndex);
-  document.getElementById('s-feels').textContent    = tempC(d.feelsLike);
-  document.getElementById('s-humid').textContent    = d.humidity != null ? Math.round(d.humidity) + "%" : "--";
-  document.getElementById('s-wind').textContent     = `${degreesToCardinal(d.windDirection)} ${windStr(d.windSpeed)}`;
+  document.getElementById('s-feels').textContent    = d.feelsLike     != null ? tempC(d.feelsLike)                          : "--";
+  document.getElementById('s-humid').textContent    = d.humidity      != null ? Math.round(d.humidity) + "%"                : "--";
+  document.getElementById('s-wind').textContent     = d.windSpeed     != null ? `${degreesToCardinal(d.windDirection)} ${windStr(d.windSpeed)}` : "--";
   document.getElementById('s-uv').textContent       = uv.text;
   document.getElementById('s-uv').style.color       = uv.color;
-  document.getElementById('s-pressure').textContent = d.pressure != null ? Math.round(d.pressure) + " hPa" : "--";
-  document.getElementById('s-vis').textContent      = visStr(d.visibility);
-  document.getElementById('s-dew').textContent      = tempC(d.dewPoint);
+  document.getElementById('s-pressure').textContent = d.pressure      != null ? Math.round(d.pressure) + " hPa"            : "--";
+  document.getElementById('s-vis').textContent      = d.visibility    != null ? visStr(d.visibility)                       : "--";
+  document.getElementById('s-dew').textContent      = d.dewPoint      != null ? tempC(d.dewPoint)                          : "--";
 
-  // Sunrise/sunset from today's forecast
   if (forecastData?.length) {
     const today = forecastData[0];
     document.getElementById('cur-sun').innerHTML =
-      `<div>🌅 Sunrise <span>${fmtTime(today.sunrise)}</span></div>
-       <div>🌇 Sunset <span>${fmtTime(today.sunset)}</span></div>`;
+      `<div>🌅 Sunrise <span>${fmtTime(today.sunrise, hourlyTimezone)}</span></div>
+       <div>🌇 Sunset <span>${fmtTime(today.sunset, hourlyTimezone)}</span></div>`;
   }
 
-  // Update map marker and background
-  if (map) map.flyTo({ center:[lon,lat], zoom:6 });
+  if (map) map.flyTo({ center: [lon, lat], zoom: 6 });
   const hour = new Date().getHours();
-  const isDay = hour > 6 && hour < 20;
-  wxBg.setWeather(d.weatherCode, isDay);
+  wxBg.setWeather(d.weatherCode, hour > 6 && hour < 20);
 }
 
 // =====================
 // HOURLY
 // =====================
+let hourlyTimezone = null; // FIX: store timezone from API response
+
 async function loadHourly() {
   try {
     const res  = await fetch(`/hourly?lat=${lat}&lon=${lon}`);
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    hourlyData = data;
+    // FIX: API now returns { timezone, hours } instead of a flat array
+    hourlyTimezone = data.timezone;
+    hourlyData = data.hours;
     renderHourly();
   } catch(e) { console.error('Hourly:', e.message); }
 }
+
 function renderHourly() {
   const scroll = document.getElementById('hourly-scroll');
   scroll.innerHTML = '';
   (hourlyData || []).forEach((h, i) => {
-    const t   = new Date(h.time);
-    const now = i === 0;
     const card = document.createElement('div');
-    card.className = 'hour-card' + (now ? ' now' : '');
+    card.className = 'hour-card' + (i === 0 ? ' now' : '');
+
+    let timeLabel;
+    if (i === 0) {
+      timeLabel = 'Now';
+    } else {
+      // FIX: Open-Meteo times are ALREADY in the location's local timezone
+      // e.g. "2025-04-25T17:00" means 5:00 PM local — no conversion needed.
+      // Previously we appended 'Z' making JS treat it as UTC, then shifted it
+      // again with timeZone: which double-converted and showed the wrong time.
+      // Just read the hour/minute straight from the string.
+      const timePart = h.time.split('T')[1]; // "17:00"
+      const [hourStr, minStr] = timePart.split(':');
+      const hour = parseInt(hourStr);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const display = hour % 12 || 12;
+      timeLabel = `${display}:${minStr} ${ampm}`;
+    }
+
     card.innerHTML = `
-      <div class="hour-time">${now ? 'Now' : t.toLocaleTimeString([],{hour:'numeric',hour12:true})}</div>
+      <div class="hour-time">${timeLabel}</div>
       <div class="hour-icon">${icon(h.weatherCode)}</div>
       <div class="hour-temp">${tempVal(h.temperature)}°</div>
       <div class="hour-precip">${h.precipProb ?? 0}% 💧</div>`;
@@ -983,6 +952,8 @@ function renderHourly() {
 // =====================
 // 7-DAY FORECAST
 // =====================
+let forecastTimezone = null;
+
 async function loadForecast() {
   try {
     const res  = await fetch(`/forecast?lat=${lat}&lon=${lon}`);
@@ -990,23 +961,26 @@ async function loadForecast() {
     if (data.error) throw new Error(data.error);
     forecastData = data;
     renderForecast();
-    // Update sunrise/sunset in current card now that we have data
     if (weatherData) renderWeather();
   } catch(e) { console.error('Forecast:', e.message); }
 }
+
 function renderForecast() {
   const grid = document.getElementById('forecast-grid');
   grid.innerHTML = '';
-  (forecastData || []).slice(0,7).forEach(day => {
+  (forecastData || []).slice(0, 7).forEach(day => {
     const d = document.createElement('div');
     d.className = 'day-card';
+
+    // THIS is where the div.innerHTML goes — replacing the old version
     d.innerHTML = `
       <div class="day-name">${new Date(day.time+'T12:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</div>
       <div class="day-icon">${icon(day.weatherCode)}</div>
       <div class="day-condition">${label(day.weatherCode)}</div>
       <div class="day-temps"><span class="day-high">${tempVal(day.max)}°</span> / <span class="day-low">${tempVal(day.min)}°</span></div>
       <div class="day-precip">💧 ${day.precipProb ?? 0}%</div>
-      <div class="day-sun">🌅 ${fmtTime(day.sunrise)}<br>🌇 ${fmtTime(day.sunset)}</div>`;
+      <div class="day-sun">🌅 ${fmtTime(day.sunrise, hourlyTimezone)}<br>🌇 ${fmtTime(day.sunset, hourlyTimezone)}</div>`;
+
     grid.appendChild(d);
   });
 }
@@ -1048,9 +1022,44 @@ function toggleRadarOverlay() {
 }
 async function initMap() {
   mapboxgl.accessToken = "pk.eyJ1IjoieHhyZWRkcmFnb254eCIsImEiOiJjbW81M2ZrcWYxb3Z3MnBwdXB0eTEzdjE5In0.flZn99qhSkN1RJjLfjK5DA";
-  map = new mapboxgl.Map({ container:'map', style:MAP_STYLES.dark, center:[lon,lat], zoom:5 });
+
+  map = new mapboxgl.Map({
+    container: 'map',
+    style: MAP_STYLES.dark,
+    center: [lon, lat],
+    zoom: 5,
+    minZoom: 2,   // FIX: RainViewer has no global tiles below zoom 2 — radar vanishes
+    maxZoom: 18,
+
+    // FIX: corrected regex — anchored to /256/ which is the fixed segment
+    // immediately before z/x/y in the RainViewer URL, so it never
+    // accidentally matches the large timestamp number earlier in the path
+    transformRequest: (url, resourceType) => {
+      if (resourceType === 'Tile' && url.includes('tilecache.rainviewer.com')) {
+        // URL structure: /v2/radar/{timestamp}/256/{z}/{x}/{y}/2/1_1.png
+        // Anchor to /256/ so we skip the timestamp entirely
+        const match = url.match(/\/256\/(\d+)\/(\d+)\/(\d+)\/2\//);
+        if (match) {
+          const z = parseInt(match[1]);
+          if (z > 12) {
+            const diff  = z - 12;
+            const scale = Math.pow(2, diff);
+            const x = Math.floor(parseInt(match[2]) / scale);
+            const y = Math.floor(parseInt(match[3]) / scale);
+            const fixed = url.replace(
+              `/256/${match[1]}/${match[2]}/${match[3]}/2/`,
+              `/256/12/${x}/${y}/2/`
+            );
+            return { url: fixed };
+          }
+        }
+      }
+      return { url };
+    }
+  });
+
   map.addControl(new mapboxgl.NavigationControl(), 'top-right');
-  new mapboxgl.Marker({ color:'#4f8ef7' }).setLngLat([lon,lat]).addTo(map);
+  new mapboxgl.Marker({ color: '#4f8ef7' }).setLngLat([lon, lat]).addTo(map);
   map.on('load', async () => { mapReady = true; await loadRadar(); });
 }
 
@@ -1073,13 +1082,31 @@ async function fetchRadarFrames(retries=3) {
   return null;
 }
 function addRadarLayersToMap(frames) {
-  frames.forEach((_,i) => {
-    try { if (map.getLayer(`radar-layer-${i}`)) map.removeLayer(`radar-layer-${i}`); } catch(e){}
-    try { if (map.getSource(`radar-${i}`))      map.removeSource(`radar-${i}`);      } catch(e){}
+  frames.forEach((_, i) => {
+    try { if (map.getLayer(`radar-layer-${i}`)) map.removeLayer(`radar-layer-${i}`); } catch(e) {}
+    try { if (map.getSource(`radar-${i}`))      map.removeSource(`radar-${i}`);      } catch(e) {}
   });
-  frames.forEach((frame,i) => {
-    map.addSource(`radar-${i}`, { type:'raster', tiles:[`https://tilecache.rainviewer.com${frame.path}/256/{z}/{x}/{y}/2/1_1.png`], tileSize:256, minzoom:0, maxzoom:12 });
-    map.addLayer({ id:`radar-layer-${i}`, type:'raster', source:`radar-${i}`, maxzoom:24, paint:{ 'raster-opacity':0, 'raster-fade-duration':0, 'raster-resampling':'linear' } });
+
+  frames.forEach((frame, i) => {
+    map.addSource(`radar-${i}`, {
+      type: 'raster',
+      // transformRequest handles z > 12, but maxzoom here stops Mapbox
+      // from even attempting tile requests above zoom 12 in the first place
+      tiles: [`https://tilecache.rainviewer.com${frame.path}/256/{z}/{x}/{y}/2/1_1.png`],
+      tileSize: 256,
+      minzoom: 2,   // matches map minZoom — no tiles exist below this
+      maxzoom: 12   // Mapbox reuses zoom-12 tiles above this level
+    });
+    map.addLayer({
+      id: `radar-layer-${i}`,
+      type: 'raster',
+      source: `radar-${i}`,
+      paint: {
+        'raster-opacity': 0,
+        'raster-fade-duration': 0,
+        'raster-resampling': 'linear'  // upscales zoom-12 tiles smoothly when zoomed past 12
+      }
+    });
   });
 }
 function ensureRadarLayers() {
@@ -1098,6 +1125,7 @@ function startRadarAnimation() {
 }
 async function loadRadar() {
   if (!mapReady || !radarEnabled) return;
+
   if (radarAnimInterval) { clearInterval(radarAnimInterval); radarAnimInterval = null; }
   radarFrames.forEach((_,i) => {
     try { if (map.getLayer(`radar-layer-${i}`)) map.removeLayer(`radar-layer-${i}`); } catch(e){}
@@ -1105,31 +1133,84 @@ async function loadRadar() {
   });
   radarFrames = [];
   document.getElementById('radar-status').textContent = '📡 Loading radar...';
+
   const result = await fetchRadarFrames(3);
   if (!result) { document.getElementById('radar-status').textContent = '⚠️ Radar unavailable'; return; }
+
   radarFrames = result.frames;
   addRadarLayersToMap(radarFrames);
   currentRadarFrame = 0;
   showRadarFrame(currentRadarFrame);
   startRadarAnimation();
+
+  // If no nowcast yet, silently retry in background every 5 min
+  // When it becomes available it gets spliced in without disrupting playback
+  if (result.futureCount === 0) {
+    scheduleNowcastRetry();
+  }
 }
+
+// Retry nowcast silently without resetting the whole radar
+let nowcastRetryTimer = null;
+function scheduleNowcastRetry() {
+  if (nowcastRetryTimer) clearTimeout(nowcastRetryTimer);
+  nowcastRetryTimer = setTimeout(async () => {
+    console.log('Retrying nowcast silently...');
+    const res = await fetch(`https://api.rainviewer.com/public/weather-maps.json?_=${Date.now()}`);
+    if (!res.ok) { scheduleNowcastRetry(); return; }
+    const data = await res.json();
+    const nowcast = (data?.radar?.nowcast || []).map(f => ({...f, type:'future'}));
+    if (nowcast.length === 0) {
+      // Still not available — try again in 5 min
+      scheduleNowcastRetry();
+      return;
+    }
+    // Nowcast is available — do a clean reload to include the new frames
+    console.log(`Nowcast now available: ${nowcast.length} frames — reloading radar`);
+    await loadRadar();
+  }, 5 * 60 * 1000); // 5 minutes
+}
+
+function startRadarAnimation() {
+  if (radarAnimInterval) clearInterval(radarAnimInterval);
+  radarAnimInterval = setInterval(() => {
+    ensureRadarLayers();
+    map.setPaintProperty(`radar-layer-${currentRadarFrame}`, 'raster-opacity', 0);
+    currentRadarFrame = (currentRadarFrame + 1) % radarFrames.length;
+    showRadarFrame(currentRadarFrame);
+  }, 700);
+}
+
 function showRadarFrame(i) {
   if (!map.getLayer(`radar-layer-${i}`)) return;
   map.setPaintProperty(`radar-layer-${i}`, 'raster-opacity', 0.65);
-  const frame = radarFrames[i];
-  const t = new Date(frame.time * 1000);
-  const timeStr = t.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  const dateStr = t.toLocaleDateString([],{month:'short',day:'numeric'});
-  const isFuture = frame.type === 'future';
-  const bar = radarFrames.map((f,j) => j===i ? '◆' : f.type==='past' ? '▓' : '░').join('');
-  const { pastCount, futureCount } = { pastCount: radarFrames.filter(f=>f.type==='past').length, futureCount: radarFrames.filter(f=>f.type==='future').length };
-  const label2 = isFuture ? '🔮 Forecast' : '📡 Radar';
-  const color  = isFuture ? '#818cf8' : '#6b7fa3';
-  const note   = futureCount === 0 ? ' — nowcast unavailable' : ` ${pastCount} past / ${futureCount} future`;
+
+  const frame     = radarFrames[i];
+  const t         = new Date(frame.time * 1000);
+  const timeStr   = t.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  const dateStr   = t.toLocaleDateString([],  {month:'short', day:'numeric'});
+  const isFuture  = frame.type === 'future';
+  const pastCount = radarFrames.filter(f => f.type === 'past').length;
+  const futCount  = radarFrames.length - pastCount;
+
+  // Progress bar — ▓ past, ░ future, ◆ current
+  const bar = radarFrames.map((f,j) =>
+    j === i ? '◆' : f.type === 'past' ? '▓' : '░'
+  ).join('');
+
+  const labelText = isFuture ? '🔮 Forecast' : '📡 Radar';
+  const color     = isFuture ? '#818cf8'     : '#6b7fa3';
+
+  // FIX: only show counts when future frames actually exist
+  // When nowcast is unavailable just show clean past-only status — no error message
+  const frameNote = futCount > 0
+  ? `<span style="color:var(--text-dim);font-size:10px">${pastCount} past / ${futCount} future</span>`
+  : `<span style="color:var(--text-dim);font-size:10px">${pastCount} frames</span>`;
+
   document.getElementById('radar-status').innerHTML =
-    `<span style="color:${color}">${label2}: ${dateStr} ${timeStr}</span>` +
+    `<span style="color:${color}">${labelText}: ${dateStr} ${timeStr}</span>` +
     `&nbsp;&nbsp;<span style="font-family:monospace;letter-spacing:2px;color:var(--text-dim)">${bar}</span>` +
-    `&nbsp;&nbsp;<span style="color:var(--text-dim);font-size:10px">${note}</span>`;
+    `&nbsp;&nbsp;${frameNote}`;
 }
 
 // =====================

@@ -47,9 +47,16 @@ app.get("/weather", async (req, res) => {
   console.log(`[weather] lat=${lat} lon=${lon}`);
   try {
     const fields = [
-      "temperature_2m","apparent_temperature","dewpoint_2m",
-      "relative_humidity_2m","wind_speed_10m","wind_direction_10m",
-      "surface_pressure","visibility","weather_code","uv_index"
+      "temperature_2m",
+      "apparent_temperature",
+      "dewpoint_2m",
+      "relative_humidity_2m",
+      "wind_speed_10m",
+      "wind_direction_10m",
+      "surface_pressure",
+      "visibility",
+      "weather_code",
+      "uv_index"
     ].join(",");
 
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
@@ -57,23 +64,34 @@ app.get("/weather", async (req, res) => {
 
     const response = await fetch(url);
     const raw = await response.json();
-    if (!raw?.current) return res.status(502).json({ error: "Bad response from Open-Meteo", detail: raw });
+
+    // Log exactly what Open-Meteo returned so we can see null fields
+    console.log("[weather] raw current:", JSON.stringify(raw?.current));
+
+    if (!raw?.current) {
+      return res.status(502).json({ error: "Bad response from Open-Meteo", detail: raw });
+    }
 
     const c = raw.current;
+
+    // Guard every field individually so one null doesn't break the whole response
     const location = await reverseGeocode(lat, lon);
+    console.log(`[weather] OK — ${location}, temp=${c.temperature_2m}, feelsLike=${c.apparent_temperature}`);
 
     res.json({
-      location, lat, lon,
-      temperature:   c.temperature_2m,
-      feelsLike:     c.apparent_temperature,
-      dewPoint:      c.dewpoint_2m,
-      humidity:      c.relative_humidity_2m,
-      windSpeed:     c.wind_speed_10m,
-      windDirection: c.wind_direction_10m,
-      pressure:      c.surface_pressure,
-      visibility:    c.visibility,
-      uvIndex:       c.uv_index,
-      weatherCode:   wmoToCode(c.weather_code)
+      location,
+      lat,
+      lon,
+      temperature:   c.temperature_2m       ?? null,
+      feelsLike:     c.apparent_temperature  ?? null,
+      dewPoint:      c.dewpoint_2m           ?? null,
+      humidity:      c.relative_humidity_2m  ?? null,
+      windSpeed:     c.wind_speed_10m        ?? null,
+      windDirection: c.wind_direction_10m    ?? null,
+      pressure:      c.surface_pressure      ?? null,
+      visibility:    c.visibility            ?? null,
+      uvIndex:       c.uv_index             ?? null,
+      weatherCode:   wmoToCode(c.weather_code ?? 0)
     });
   } catch (err) {
     console.error("[weather] Error:", err.message);
@@ -127,16 +145,31 @@ app.get("/hourly", async (req, res) => {
     if (!raw?.hourly?.time) return res.status(502).json({ error: "Bad response", detail: raw });
 
     const h = raw.hourly;
-    const now = new Date();
-    const hours = h.time.map((time, i) => ({
-      time,
-      temperature: h.temperature_2m[i],
-      precipProb:  h.precipitation_probability[i],
-      weatherCode: wmoToCode(h.weather_code[i]),
-      windSpeed:   h.wind_speed_10m[i]
-    })).filter(h => new Date(h.time) >= now).slice(0, 24);
+    const timezone = raw.timezone; // e.g. "America/Chicago"
+    const utcOffsetSeconds = raw.utc_offset_seconds; // e.g. -18000
 
-    res.json(hours);
+    const now = new Date();
+
+    // Find current hour index using UTC offset to compare correctly
+    const nowUtc = now.getTime();
+    let startIndex = 0;
+    for (let i = 0; i < h.time.length; i++) {
+      // Open-Meteo times are local — convert to UTC for comparison
+      const localMs = new Date(h.time[i]).getTime() - (utcOffsetSeconds * 1000) + (now.getTimezoneOffset() * 60 * 1000);
+      if (localMs <= nowUtc) startIndex = i;
+      else break;
+    }
+
+    const hours = h.time.slice(startIndex, startIndex + 24).map((time, i) => ({
+      time,
+      temperature: h.temperature_2m[startIndex + i],
+      precipProb:  h.precipitation_probability[startIndex + i],
+      weatherCode: wmoToCode(h.weather_code[startIndex + i]),
+      windSpeed:   h.wind_speed_10m[startIndex + i]
+    }));
+
+    // FIX: send timezone along so the frontend can format times correctly
+    res.json({ timezone, hours });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
