@@ -35,6 +35,8 @@ This is currently work in progress but currently does function. There are a few 
 
 It is mobile friendly so it loads via web browser on phones and tablets as well. 
 
+To see a live demo of this go to https://weather.hbtechsolutions.com
+
 Prerequistes: 
 
 1. Make sure you have docker installed and running.
