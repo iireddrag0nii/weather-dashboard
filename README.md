@@ -37,7 +37,7 @@ It is mobile friendly so it loads via web browser on phones and tablets as well.
 
 Prerequistes: 
 
-1. Make sure you have docker installed.
+1. Make sure you have docker installed and running.
 
 Instructions: 
 
