@@ -1,6 +1,12 @@
 # weather-dashboard
-Dashboard showing current location weather, 7 day forecast, and a weather map. 
-<img width="1876" height="924" alt="image" src="https://github.com/user-attachments/assets/669eec4a-f649-4319-b838-e1124b75e6ac" />
+Dashboard showing current location weather, 7 day forecast, 24 hour hourly forecast, and a weather map. 
+<img width="880" height="892" alt="image" src="https://github.com/user-attachments/assets/8ee4bbeb-7657-4476-b290-8a5c1d1d0007" />
+
+
+*Latest updates (4/25/26)*: 
+Got the 24 hour hourly forecast to work. 
+Tweaked mobile mode so that buttons and text wouldn't overlap. 
+Fixed the sunrise and sunset time in the 7 day forecast so that it was more visible. 
 
 *Latest updates (4/24/26)*: 
 Added the ability to save locations.
@@ -11,7 +17,6 @@ Added a satellite radar map overlay mode.
 Added a 'feels like', UV index, wind direction and speed, and dew point. 
 Added a button to change between m/s and mph. 
 Visual improvements. 
-
 
 This was put together after the pi weather station issues that I ran into after hosting it for years. 
 
@@ -30,11 +35,23 @@ This is currently work in progress but currently does function. There are a few 
 
 It is mobile friendly so it loads via web browser on phones and tablets as well. 
 
+Prerequistes: 
+
+1. Make sure you have docker installed.
+
 Instructions: 
 
 1. Clone the files into your local repository.
 2. CD to the weather-dashboard folder.
-3. Run Sudo docker compose up -d --build command. It will build two containers.
+3. Run docker compose up -d --build command. It will build two containers.
 4. Navigate to yourip:8888
+
+To Update: 
+
+1. CD to the weather-dashboard folder on your local machine. 
+2. Run docker compose down -v.
+3. Delete the current weather-dashboard folder from your local directory.
+4. Clone the files into your local respository.
+5. Run docker compose up -d --build command. It will create the updated containers.  
 
 NOTE: I saved the old version of server.js (backend) and index.html (frontend) as (old) files. If you wish to use the old version, delete the current server.js and index.html files and rename the server.js(old) and index.html(old) to server.js and index.html respectfully. When you run docker compose up -d --build command, it will build the old version. 
