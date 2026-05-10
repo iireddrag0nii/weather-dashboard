@@ -43,17 +43,15 @@ Prerequistes:
 
 Instructions: 
 
-1. Clone the files into your local repository.
-2. CD to the weather-dashboard folder.
-3. Run docker compose up -d --build command. It will build two containers.
-4. Navigate to yourip:8888
+1. Clone the docker-compose.yml file to your computer or server.
+2. Run `docker compose up -d` command. It will build two containers.
+3. Navigate to `<your-ip>:8888`
 
 To Update: 
 
-1. CD to the weather-dashboard folder on your local machine. 
-2. Run docker compose down -v.
-3. Delete the current weather-dashboard folder from your local directory.
-4. Clone the files into your local respository.
-5. Run docker compose up -d --build command. It will create the updated containers.  
+1. CD to where the docker-compose.yml file is located on your machine.
+2. Run `docker compose down -v`.
+3. Run `docker compose pull` to get the latest updates
+4. Run `docker compose up -d` to start the app again with the updated containers
 
-NOTE: I saved the old version of server.js (backend) and index.html (frontend) as (old) files. If you wish to use the old version, delete the current server.js and index.html files and rename the server.js(old) and index.html(old) to server.js and index.html respectfully. When you run docker compose up -d --build command, it will build the old version. 
+NOTE: I saved the old version of server.js (backend) and index.html (frontend) as (old) files. If you wish to use the old version, delete the current server.js and index.html files and rename the server.js(old) and index.html(old) to server.js and index.html respectfully. When you run `docker compose up -d --build` command, it will build the old version. This will require you to clone the repo though.
