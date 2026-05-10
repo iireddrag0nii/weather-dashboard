@@ -1,13 +1,15 @@
 services:
   backend:
-    build: ./backend
+    build:
+      context: "https://github.com/iireddrag0nii/weather-dashboard.git#main:backend"
     container_name: weather-backend
     ports:
       - "3001:3000"
     networks:
       - weather-net
   frontend:
-    build: ./frontend
+    build:
+      context: "https://github.com/iireddrag0nii/weather-dashboard.git#main:frontend"
     container_name: weather-frontend
     ports:
       - "8888:80"
